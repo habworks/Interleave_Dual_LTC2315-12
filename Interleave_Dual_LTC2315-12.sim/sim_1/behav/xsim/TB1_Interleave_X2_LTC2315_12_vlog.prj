@@ -1,0 +1,10 @@
+# compile verilog/system verilog design source files
+verilog xil_defaultlib  --include "../../../../Interleave_Dual_LTC2315-12.srcs/sources_1/new" \
+"../../../../Interleave_Dual_LTC2315-12.srcs/sources_1/new/Interleave_X2_LTC2315_12.v" \
+"../../../../Interleave_Dual_LTC2315-12.srcs/sim_1/new/TB1_Interleave_X2_LTC2315_12.v" \
+
+# compile glbl module
+verilog xil_defaultlib "glbl.v"
+
+# Do not sort compile order
+nosort

@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="TB1_Interleave_X2_LTC2315_12_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="TB1_Interleave_X2_LTC2315_12" />
+            <top_module name="glbl" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="0.000 ns"></ZoomStartTime>
+      <ZoomEndTime time="582.672 ns"></ZoomEndTime>
+      <Cursor1Time time="675.000 ns"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="156"></NameColumnWidth>
+      <ValueColumnWidth column_width="58"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="29" />
+   <wvobject fp_name="/TB1_Interleave_X2_LTC2315_12/DUT/Sys_RTL_Revision" type="array">
+      <obj_property name="ElementShortName">Sys_RTL_Revision[31:0]</obj_property>
+      <obj_property name="ObjectShortName">Sys_RTL_Revision[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB1_Interleave_X2_LTC2315_12/Reset_n" type="logic">
+      <obj_property name="ElementShortName">Reset_n</obj_property>
+      <obj_property name="ObjectShortName">Reset_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB1_Interleave_X2_LTC2315_12/SysClock" type="logic">
+      <obj_property name="ElementShortName">SysClock</obj_property>
+      <obj_property name="ObjectShortName">SysClock</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB1_Interleave_X2_LTC2315_12/AXI_Acquire" type="logic">
+      <obj_property name="ElementShortName">AXI_Acquire</obj_property>
+      <obj_property name="ObjectShortName">AXI_Acquire</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB1_Interleave_X2_LTC2315_12/DUT/AcquireFrameStartPulse" type="logic">
+      <obj_property name="ElementShortName">AcquireFrameStartPulse</obj_property>
+      <obj_property name="ObjectShortName">AcquireFrameStartPulse</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB1_Interleave_X2_LTC2315_12/AXI_Reset" type="logic">
+      <obj_property name="ElementShortName">AXI_Reset</obj_property>
+      <obj_property name="ObjectShortName">AXI_Reset</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB1_Interleave_X2_LTC2315_12/DUT/ResetPulse" type="logic">
+      <obj_property name="ElementShortName">ResetPulse</obj_property>
+      <obj_property name="ObjectShortName">ResetPulse</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB1_Interleave_X2_LTC2315_12/ADC_SampleRate_TP" type="logic">
+      <obj_property name="ElementShortName">ADC_SampleRate_TP</obj_property>
+      <obj_property name="ObjectShortName">ADC_SampleRate_TP</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB1_Interleave_X2_LTC2315_12/DUT/SysFrameActiveReg" type="logic">
+      <obj_property name="ElementShortName">SysFrameActiveReg</obj_property>
+      <obj_property name="ObjectShortName">SysFrameActiveReg</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB1_Interleave_X2_LTC2315_12/SysDone_IRQ" type="logic">
+      <obj_property name="ElementShortName">SysDone_IRQ</obj_property>
+      <obj_property name="ObjectShortName">SysDone_IRQ</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB1_Interleave_X2_LTC2315_12/DUT/Sys_B_MainCycleCounterReg" type="array">
+      <obj_property name="ElementShortName">Sys_B_MainCycleCounterReg[4:0]</obj_property>
+      <obj_property name="ObjectShortName">Sys_B_MainCycleCounterReg[4:0]</obj_property>
+      <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB1_Interleave_X2_LTC2315_12/DUT/B_State" type="array">
+      <obj_property name="ElementShortName">B_State[3:0]</obj_property>
+      <obj_property name="ObjectShortName">B_State[3:0]</obj_property>
+      <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB1_Interleave_X2_LTC2315_12/B_CS_n" type="logic">
+      <obj_property name="ElementShortName">B_CS_n</obj_property>
+      <obj_property name="ObjectShortName">B_CS_n</obj_property>
+      <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB1_Interleave_X2_LTC2315_12/DUT/B_ClockGate" type="logic">
+      <obj_property name="ElementShortName">B_ClockGate</obj_property>
+      <obj_property name="ObjectShortName">B_ClockGate</obj_property>
+      <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB1_Interleave_X2_LTC2315_12/B_SCLK" type="logic">
+      <obj_property name="ElementShortName">B_SCLK</obj_property>
+      <obj_property name="ObjectShortName">B_SCLK</obj_property>
+      <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB1_Interleave_X2_LTC2315_12/B_SDATA" type="logic">
+      <obj_property name="ElementShortName">B_SDATA</obj_property>
+      <obj_property name="ObjectShortName">B_SDATA</obj_property>
+      <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB1_Interleave_X2_LTC2315_12/DUT/B_ADC_ShiftReg" type="array">
+      <obj_property name="ElementShortName">B_ADC_ShiftReg[13:0]</obj_property>
+      <obj_property name="ObjectShortName">B_ADC_ShiftReg[13:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+      <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB1_Interleave_X2_LTC2315_12/DUT/B_ADC_SampleData" type="array">
+      <obj_property name="ElementShortName">B_ADC_SampleData[15:0]</obj_property>
+      <obj_property name="ObjectShortName">B_ADC_SampleData[15:0]</obj_property>
+      <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB1_Interleave_X2_LTC2315_12/DUT/Sys_A_MainCycleCounterReg" type="array">
+      <obj_property name="ElementShortName">Sys_A_MainCycleCounterReg[4:0]</obj_property>
+      <obj_property name="ObjectShortName">Sys_A_MainCycleCounterReg[4:0]</obj_property>
+      <obj_property name="CustomSignalColor">#FFFF00</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB1_Interleave_X2_LTC2315_12/DUT/A_State" type="array">
+      <obj_property name="ElementShortName">A_State[3:0]</obj_property>
+      <obj_property name="ObjectShortName">A_State[3:0]</obj_property>
+      <obj_property name="CustomSignalColor">#FFFF00</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB1_Interleave_X2_LTC2315_12/A_CS_n" type="logic">
+      <obj_property name="ElementShortName">A_CS_n</obj_property>
+      <obj_property name="ObjectShortName">A_CS_n</obj_property>
+      <obj_property name="CustomSignalColor">#FFFF00</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB1_Interleave_X2_LTC2315_12/DUT/A_ClockGate" type="logic">
+      <obj_property name="ElementShortName">A_ClockGate</obj_property>
+      <obj_property name="ObjectShortName">A_ClockGate</obj_property>
+      <obj_property name="CustomSignalColor">#FFFF00</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB1_Interleave_X2_LTC2315_12/A_SCLK" type="logic">
+      <obj_property name="ElementShortName">A_SCLK</obj_property>
+      <obj_property name="ObjectShortName">A_SCLK</obj_property>
+      <obj_property name="CustomSignalColor">#FFFF00</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB1_Interleave_X2_LTC2315_12/A_SDATA" type="logic">
+      <obj_property name="ElementShortName">A_SDATA</obj_property>
+      <obj_property name="ObjectShortName">A_SDATA</obj_property>
+      <obj_property name="CustomSignalColor">#FFFF00</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB1_Interleave_X2_LTC2315_12/DUT/A_ADC_ShiftReg" type="array">
+      <obj_property name="ElementShortName">A_ADC_ShiftReg[13:0]</obj_property>
+      <obj_property name="ObjectShortName">A_ADC_ShiftReg[13:0]</obj_property>
+      <obj_property name="CustomSignalColor">#FFFF00</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB1_Interleave_X2_LTC2315_12/DUT/A_ADC_SampleData" type="array">
+      <obj_property name="ElementShortName">A_ADC_SampleData[15:0]</obj_property>
+      <obj_property name="ObjectShortName">A_ADC_SampleData[15:0]</obj_property>
+      <obj_property name="CustomSignalColor">#FFFF00</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB1_Interleave_X2_LTC2315_12/FIFO_Reset" type="logic">
+      <obj_property name="ElementShortName">FIFO_Reset</obj_property>
+      <obj_property name="ObjectShortName">FIFO_Reset</obj_property>
+      <obj_property name="CustomSignalColor">#FF00FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB1_Interleave_X2_LTC2315_12/FIFO_WriteEnable" type="logic">
+      <obj_property name="ElementShortName">FIFO_WriteEnable</obj_property>
+      <obj_property name="ObjectShortName">FIFO_WriteEnable</obj_property>
+      <obj_property name="CustomSignalColor">#FF00FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB1_Interleave_X2_LTC2315_12/FIFO_Data" type="array">
+      <obj_property name="ElementShortName">FIFO_Data[15:0]</obj_property>
+      <obj_property name="ObjectShortName">FIFO_Data[15:0]</obj_property>
+      <obj_property name="CustomSignalColor">#FF00FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+</wave_config>
