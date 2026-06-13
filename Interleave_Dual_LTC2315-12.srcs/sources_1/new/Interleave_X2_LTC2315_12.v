@@ -125,7 +125,7 @@ reg [13:0]  A_ADC_ShiftReg;         // Data is shifted in to this register - 14b
 reg [15:0]  A_ADC_SampleData;       // Once all 14 bits have been shifted into the shift register this register is updated - formated with the 4MSb as 0 and data bits 12 to 1 from the shift register
 reg [3:0]   A_Status;               // The error stats of the Channel 0 = No errors
 reg         A_ClockGate;            // Enables clocking to SCLK
-reg         A_SampleTrigger;        // When a sample acquisition starts - used in knowing the next number of total acquistions
+reg         A_SampleTrigger;        // When channel sample acquisition starts - used in knowing the next pending number of total acquistions completed
 
 // Channel B 
 reg [3:0]   B_State;
@@ -147,36 +147,19 @@ assign AXI_MM_RevisionReg = Sys_RTL_Revision;
 
 
 // CLOCK GATING
-// Channel A
-// assign A_SCLK = SysClock & A_ClockGate;
-// Hardware-hardened, glitch-free clock gating for Channel A
-//BUFGCE bufgce_clk_a 
-//(
-//    .O  (A_SCLK),       // 1-bit output: Clock output to physical pin
-//    .CE (A_ClockGate),  // 1-bit input:  Active-high clock enable
-//    .I  (SysClock)      // 1-bit input:  Source clock (100MHz)
-//);
-// Channel B
-// assign B_SCLK = SysClock & B_ClockGate;
-// Hardware-hardened, glitch-free clock gating for Channel B
-//BUFGCE bufgce_clk_b (
-//    .O  (B_SCLK),       // 1-bit output: Clock output to physical pin
-//    .CE (B_ClockGate),  // 1-bit input:  Active-high clock enable
-//    .I  (SysClock)      // 1-bit input:  Source clock (100MHz)
-//);
 // Channel A: Forwards SysClock to pin only when A_ClockGate is active
 ODDR #(
     .DDR_CLK_EDGE("OPPOSITE_EDGE"), // D1 is captured on rising edge, D2 on falling edge
-    .INIT(1'b0), // Initial state of Q
-    .SRTYPE("SYNC") // Forces Reset and Set to be synchronus with clock as opposed to ASYNC
+    .INIT(1'b0),                    // Initial state of Q
+    .SRTYPE("SYNC")                 // Forces Reset and Set to be synchronus with clock as opposed to ASYNC
 ) ODDR_inst_a (
-    .Q  (A_SCLK),       // Drives physical pin directly
-    .C  (SysClock),     // 100MHz system clock
-    .CE (1'b1),  // Always enable
-    .D1 (A_ClockGate),         // High on rising edge
-    .D2 (1'b0),         // Low on falling edge
-    .R  (~Reset_n),     // Reset
-    .S  (1'b0)          // If set high the output will be high - make low so it can be 
+    .Q  (A_SCLK),                   // This is output - Drives physical pin directly
+    .C  (SysClock),                 // This is input clock - 100MHz system clock
+    .CE (1'b1),                     // This is Clock Enable input - Always enable
+    .D1 (A_ClockGate),              // On rising edge output (Q) =  A_ClockGate value
+    .D2 (1'b0),                     // On falling edge output (Q) = 0
+    .R  (~Reset_n),                 // Reset input
+    .S  (1'b0)                      // If set high the output will be high - make low do not ever want to force output high
 );
 
 // Channel B: Forwards SysClock to pin only when B_ClockGate is active
@@ -190,7 +173,7 @@ ODDR #(
     .CE (1'b1),
     .D1 (B_ClockGate),
     .D2 (1'b0),
-    .R  (~Reset_n),     // Reset
+    .R  (~Reset_n),     
     .S  (1'b0)
 );
 
@@ -223,6 +206,7 @@ end
 assign ResetPulse = AXI_Reset & !ResetPulseReg_d1;   // This is only true if AXI_Reset was previously low, now high and will self clear in the next clock cycle
 
 
+
 // SYSTEM BLOCK: Enable FIFO, Software start trigger, Count Acquistions, Check if done - Note because of the mixing of sync and async signals in the always - the structure must be if, else if, else if... else and not if, if, if... if
 always @(posedge SysClock or negedge Reset_n)
 begin
@@ -241,7 +225,6 @@ begin
     end else
        
     begin
-        
         // The reset pulse takes same action as Reset_n
         if (ResetPulse)
         begin
@@ -267,29 +250,29 @@ begin
             Sys_FIFO_StatusReg <= 32'd0;
         end
         
+        // TRACK NEXT SAMPLE IN PROGRESS: Need to know this so you know when to be completed
         if (A_SampleTrigger || B_SampleTrigger)
             SysSampleCountInProgressReg <= SysSampleCountInProgressReg + 16'd1;
         
         // ADC CYCLE COUNTER: If frame acquistion active then the main counter needs to be counting - note there are (1 + 14 + 1 + 4) 20 cycles per transfer
         if (SysFrameActiveReg)
         begin
-            // A main clock
+            // A main clock clounter repeats every 20 clicks
             if (Sys_A_MainCycleCounterReg == `CYCLES_PER_ADC_TRANSFER - 1)
                 Sys_A_MainCycleCounterReg <= 5'd0;
             else
                 Sys_A_MainCycleCounterReg <= Sys_A_MainCycleCounterReg + 1'd1;
-                
-            
+            // On the inital A counter 1/2 through (180 degrees out of phase) set flag to allow the B counter to start
             if ((Sys_A_MainCycleCounterReg == 5'd9) && (!Sys_B_PhaseDelayInit))
                 Sys_B_PhaseDelayInit <= `TRUE;
             
-            // B main clock            
+            // B main clock clounter repeats every 20 clicks         
             if (Sys_B_PhaseDelayInit)
             begin
                 if (Sys_B_MainCycleCounterReg == `CYCLES_PER_ADC_TRANSFER - 1)
                     Sys_B_MainCycleCounterReg <= 5'd0;
-            else
-                Sys_B_MainCycleCounterReg <= Sys_B_MainCycleCounterReg + 1'd1;
+                else
+                    Sys_B_MainCycleCounterReg <= Sys_B_MainCycleCounterReg + 1'd1;
             end
         end
         
@@ -307,7 +290,7 @@ begin
             end
         end
         
-        // Check for errors in either Channel A or B
+        // ERROR CHECKING: Check for errors in either Channel A or B
         if (SysFrameActiveReg && (A_Status | B_Status))
         begin
             Sys_FIFO_StatusReg <= {16'd0, 8'd0, A_Status, B_Status};
@@ -332,9 +315,7 @@ begin
     end else
     
     begin
-    
         case (A_State)
-        
             // WAIT STATE: To advance count 1 cycle
             `STATE_WAIT:
             begin
@@ -367,15 +348,16 @@ begin
                 if (Sys_A_MainCycleCounterReg == 5'd14)
                     A_ClockGate <= `CLK_DISABLE;
                 if (Sys_A_MainCycleCounterReg == 5'd15)
+                begin
+                    A_CS_n <= `CS_DISABLE;
                     A_State <= `STATE_FIFO_WRITE;
-                if (A_ClockGate == `CLK_ENABLE)
+                end else
                     A_ADC_ShiftReg <= {A_ADC_ShiftReg[12:0], A_SDATA};
             end
             
             // WRITE TO FIFO STATE: To advance count 1 cycle
             `STATE_FIFO_WRITE:
             begin                   
-                A_CS_n <= `CS_DISABLE;
                 A_ADC_SampleData <= {4'd0, A_ADC_ShiftReg[12:1]};
                 A_State <= `STATE_SAMPLE_ACQUIRE_TIME;
             end
@@ -391,12 +373,9 @@ begin
             default:
             begin
                 A_Status <= `ERROR_UNDEFINED_STATE;
-            end
-            
+            end  
         endcase
-    
     end 
-    
 end
 
 
@@ -413,9 +392,7 @@ begin
     end else
     
     begin
-            
         case (B_State)
-    
             // WAIT STATE: To advance count 1 cycle
             `STATE_WAIT:
             begin
@@ -447,15 +424,16 @@ begin
                 if (Sys_B_MainCycleCounterReg == 5'd14)
                     B_ClockGate <= `CLK_DISABLE;
                 if (Sys_B_MainCycleCounterReg == 5'd15)
+                begin
+                    B_CS_n <= `CS_DISABLE;
                     B_State <= `STATE_FIFO_WRITE;
-                if (B_ClockGate == `CLK_ENABLE)
+                end else
                     B_ADC_ShiftReg <= {B_ADC_ShiftReg[12:0], B_SDATA};
             end
             
             // WRITE TO FIFO STATE: To advance count 1 cycle
             `STATE_FIFO_WRITE:
             begin
-                B_CS_n <= `CS_DISABLE;
                 B_ADC_SampleData <= {4'd0, B_ADC_ShiftReg[12:1]};
                 B_State <= `STATE_SAMPLE_ACQUIRE_TIME;
             end
@@ -472,25 +450,22 @@ begin
             begin
                 B_Status <= `ERROR_UNDEFINED_STATE;
             end
-    
         endcase 
-    
     end
-    
 end
 
 
 
 // FIFO WRITE BLOCK (FIXED): Cleanly decoupled data routing and strobe generation
 always @(posedge SysClock or negedge Reset_n) begin
-    if (Reset_n == `LOW) begin
+    if (Reset_n == `LOW) 
+    begin
         FIFO_Data         <= 16'd0;
         FIFO_WriteEnable  <= `FIFO_WR_DISABLE;
         ADC_SampleRate_TP <= `LOW;
     end else 
     
     begin
-        
         // =====================================================================
         // 1. DATA ROUTING PATH
         // =====================================================================
@@ -498,19 +473,16 @@ always @(posedge SysClock or negedge Reset_n) begin
         // 180 degrees out of phase, these two specific conditions never happen 
         // on the exact same clock edge, keeping the data bus perfectly shared.
         if (Sys_A_MainCycleCounterReg == 5'd17) 
-        begin
             FIFO_Data <= A_ADC_SampleData;
-        end 
-        else if ((Sys_B_PhaseDelayInit == `TRUE) && (Sys_B_MainCycleCounterReg == 5'd17)) begin
+        else if ((Sys_B_PhaseDelayInit == `TRUE) && (Sys_B_MainCycleCounterReg == 5'd17))
             FIFO_Data <= B_ADC_SampleData;
-        end
 
         // =====================================================================
         // 2. WRITE ENABLE & TEST POINT STROBE PATH
         // =====================================================================
-        // This independent conditiona handles the strobe. If either channel 
+        // This conditiona handles the FIFO Wr strobe. If either channel A or B
         // hits cycle 18, it creates a clean, 1-cycle wide pulse. Otherwise,
-        // it cleanly defaults to disabled without any 'else-if' blocking.
+        // FIFO Wr strobe defaults to disabled 
         if ((Sys_A_MainCycleCounterReg == 5'd18) || ((Sys_B_PhaseDelayInit == `TRUE) && (Sys_B_MainCycleCounterReg == 5'd18))) 
         begin
             FIFO_WriteEnable  <= `FIFO_WR_ENABLE;
@@ -520,7 +492,6 @@ always @(posedge SysClock or negedge Reset_n) begin
             // Falls back here on all other 18 cycles, keeping the strobe low
             FIFO_WriteEnable  <= `FIFO_WR_DISABLE;
         end
-
     end
 end
 

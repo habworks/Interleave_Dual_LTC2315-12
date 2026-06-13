@@ -12,14 +12,18 @@
    </db_ref_list>
    <zoom_setting>
       <ZoomStartTime time="0.000 ns"></ZoomStartTime>
-      <ZoomEndTime time="582.672 ns"></ZoomEndTime>
-      <Cursor1Time time="675.000 ns"></Cursor1Time>
+      <ZoomEndTime time="433.794 ns"></ZoomEndTime>
+      <Cursor1Time time="245.000 ns"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
-      <NameColumnWidth column_width="156"></NameColumnWidth>
+      <NameColumnWidth column_width="152"></NameColumnWidth>
       <ValueColumnWidth column_width="58"></ValueColumnWidth>
    </column_width_setting>
    <WVObjectSize size="29" />
+   <wave_markers>
+      <marker time="95000" label="" />
+      <marker time="245000" label="" />
+   </wave_markers>
    <wvobject fp_name="/TB1_Interleave_X2_LTC2315_12/DUT/Sys_RTL_Revision" type="array">
       <obj_property name="ElementShortName">Sys_RTL_Revision[31:0]</obj_property>
       <obj_property name="ObjectShortName">Sys_RTL_Revision[31:0]</obj_property>

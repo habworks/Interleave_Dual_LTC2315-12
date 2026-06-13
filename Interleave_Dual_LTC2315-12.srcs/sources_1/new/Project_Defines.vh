@@ -25,7 +25,7 @@
 `define RTL_VALID_REV       8'hA5
 `define RTL_MAJOR_REV       8'd1
 `define RTL_MINOR_REV       8'd3
-`define RTL_TEST_REV        8'd10
+`define RTL_TEST_REV        8'd11
 // Define Boolean Status
 `define TRUE                1'b1
 `define FALSE               1'b0

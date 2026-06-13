@@ -1,7 +1,7 @@
-Running: xsim.dir/TB1_Interleave_X2_LTC2315_12_behav/xsimk.exe -simmode gui -wdb TB1_Interleave_X2_LTC2315_12_behav.wdb -simrunnum 0 -socket 65372
+Running: xsim.dir/TB1_Interleave_X2_LTC2315_12_behav/xsimk.exe -simmode gui -wdb TB1_Interleave_X2_LTC2315_12_behav.wdb -simrunnum 0 -socket 60544
 Design successfully loaded
-Design Loading Memory Usage: 28956 KB (Peak: 28956 KB)
-Design Loading CPU Usage: 749 ms
+Design Loading Memory Usage: 28912 KB (Peak: 28912 KB)
+Design Loading CPU Usage: 686 ms
 Simulation completed
 Simulation Memory Usage: 30276 KB (Peak: 30276 KB)
-Simulation CPU Usage: 858 ms
+Simulation CPU Usage: 780 ms
