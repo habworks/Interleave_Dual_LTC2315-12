@@ -117,7 +117,7 @@ end
 
 // ADC simulated responses run in parallel
 always begin
-      Drive_ADC_A_Sample({1'b0, 12'h7A5, 1'b0});
+      Drive_ADC_A_Sample({1'b1, 12'h7A4, 1'b1});
 end
 
 always begin
@@ -132,7 +132,7 @@ task Drive_ADC_A_Sample;
     begin
         @(negedge A_CS_n);
         // Drive the first bit (Bit 13) immediately on CS drop!
-        #1 
+        #8
         A_SDATA = ADC_Sample[13]; 
         
         // Loop handles the remaining 13 bits on subsequent clock transitions

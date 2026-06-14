@@ -146,7 +146,7 @@ assign AXI_MM_StatusReg = Sys_FIFO_StatusReg;
 assign AXI_MM_RevisionReg = Sys_RTL_Revision;
 
 
-// CLOCK GATING
+// CLOCK GATING ODDR (Output Double Data Rate Register)
 // Channel A: Forwards SysClock to pin only when A_ClockGate is active
 ODDR #(
     .DDR_CLK_EDGE("OPPOSITE_EDGE"), // D1 is captured on rising edge, D2 on falling edge
@@ -246,6 +246,7 @@ begin
             SysDone_IRQ <= `FALSE;
             FIFO_Reset <= `FIFO_RESET_DISABLE;
             Sys_A_MainCycleCounterReg <= 5'd0;
+            Sys_B_MainCycleCounterReg <= 5'd0;
             SysSampleCountCompletedReg <= 16'd0;
             Sys_FIFO_StatusReg <= 32'd0;
         end
@@ -325,8 +326,7 @@ begin
                     A_CS_n <= `CS_ENABLE;
                     A_ClockGate <= `CLK_ENABLE;
                     A_SampleTrigger <= `TRUE;
-                    A_State <= `STATE_BEGIN;
-                    
+                    A_State <= `STATE_BEGIN; 
                 end else
                 begin
                     A_CS_n <= `CS_DISABLE;
@@ -340,6 +340,7 @@ begin
             begin
                 A_SampleTrigger <= `FALSE;
                 A_State <= `STATE_CLK_DATA_IN;
+                A_ADC_ShiftReg <= {A_ADC_ShiftReg[12:0], A_SDATA};
             end
             
             // CLOCK IN DATA STATE: The ADC sample is being clocked into the shift register a total of 14b.  To advance to next state count 14 cycles
@@ -348,16 +349,15 @@ begin
                 if (Sys_A_MainCycleCounterReg == 5'd14)
                     A_ClockGate <= `CLK_DISABLE;
                 if (Sys_A_MainCycleCounterReg == 5'd15)
-                begin
-                    A_CS_n <= `CS_DISABLE;
                     A_State <= `STATE_FIFO_WRITE;
-                end else
-                    A_ADC_ShiftReg <= {A_ADC_ShiftReg[12:0], A_SDATA};
+                else
+                A_ADC_ShiftReg <= {A_ADC_ShiftReg[12:0], A_SDATA};
             end
             
             // WRITE TO FIFO STATE: To advance count 1 cycle
             `STATE_FIFO_WRITE:
-            begin                   
+            begin
+                A_CS_n <= `CS_DISABLE;
                 A_ADC_SampleData <= {4'd0, A_ADC_ShiftReg[12:1]};
                 A_State <= `STATE_SAMPLE_ACQUIRE_TIME;
             end
@@ -416,6 +416,7 @@ begin
             begin
                 B_SampleTrigger <= `FALSE;
                 B_State <= `STATE_CLK_DATA_IN;
+                B_ADC_ShiftReg <= {B_ADC_ShiftReg[12:0], B_SDATA};
             end
             
             // CLOCK IN DATA STATE: To advance count 14 cycles
@@ -424,16 +425,15 @@ begin
                 if (Sys_B_MainCycleCounterReg == 5'd14)
                     B_ClockGate <= `CLK_DISABLE;
                 if (Sys_B_MainCycleCounterReg == 5'd15)
-                begin
-                    B_CS_n <= `CS_DISABLE;
                     B_State <= `STATE_FIFO_WRITE;
-                end else
+                else
                     B_ADC_ShiftReg <= {B_ADC_ShiftReg[12:0], B_SDATA};
             end
             
             // WRITE TO FIFO STATE: To advance count 1 cycle
             `STATE_FIFO_WRITE:
             begin
+                B_CS_n <= `CS_DISABLE;
                 B_ADC_SampleData <= {4'd0, B_ADC_ShiftReg[12:1]};
                 B_State <= `STATE_SAMPLE_ACQUIRE_TIME;
             end
