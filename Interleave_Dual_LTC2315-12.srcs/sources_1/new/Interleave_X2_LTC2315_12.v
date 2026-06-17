@@ -215,7 +215,7 @@ begin
         SysFrameActiveReg <= `FALSE;
         SysDone_IRQ <= `FALSE;
         FIFO_Reset <= `FIFO_RESET_ENABLE;
-        Sys_A_MainCycleCounterReg <= 5'd0;
+        Sys_A_MainCycleCounterReg <= 5'h00;
         Sys_B_MainCycleCounterReg <= 5'd0;
         SysSampleCountCompletedReg <= 16'd0;
         SysSampleCountInProgressReg <= 16'd0;
@@ -270,7 +270,7 @@ begin
             // B main clock clounter repeats every 20 clicks         
             if (Sys_B_PhaseDelayInit)
             begin
-                if (Sys_B_MainCycleCounterReg == `CYCLES_PER_ADC_TRANSFER - 1)
+                if (Sys_B_MainCycleCounterReg == 5'd17)
                     Sys_B_MainCycleCounterReg <= 5'd0;
                 else
                     Sys_B_MainCycleCounterReg <= Sys_B_MainCycleCounterReg + 1'd1;
@@ -318,7 +318,7 @@ begin
     begin
         case (A_State)
             // WAIT STATE: To advance count 1 cycle
-            `STATE_WAIT:
+            `STATE_WAIT:  // STATE 0 - CLK 0
             begin
                 if ((SysFrameActiveReg) && (Sys_A_MainCycleCounterReg == 5'd0) && (SysSampleCountInProgressReg != TOTAL_SAMPLES_PER_FRAME)) // Starts at Sys_A_MainCycleCounterReg 0 and takes 20 cycles for state machine to advance back to STATE_WAIT
                 begin
@@ -336,7 +336,7 @@ begin
                 end
             end
             
-            `STATE_BEGIN:
+            `STATE_BEGIN:   // STATE 1 - CLK 1
             begin
                 A_SampleTrigger <= `FALSE;
                 A_State <= `STATE_CLK_DATA_IN;
@@ -344,26 +344,30 @@ begin
             end
             
             // CLOCK IN DATA STATE: The ADC sample is being clocked into the shift register a total of 14b.  To advance to next state count 14 cycles
-            `STATE_CLK_DATA_IN:
+            `STATE_CLK_DATA_IN: // STATE 2 - CLK 2 TO CLK 15
             begin
                 if (Sys_A_MainCycleCounterReg == 5'd14)
+                begin
                     A_ClockGate <= `CLK_DISABLE;
-                if (Sys_A_MainCycleCounterReg == 5'd15)
+                    A_ADC_ShiftReg <= {A_ADC_ShiftReg[12:0], A_SDATA};
+                end
+                else if (Sys_A_MainCycleCounterReg == 5'd15)
+                begin
                     A_State <= `STATE_FIFO_WRITE;
-                else
-                A_ADC_ShiftReg <= {A_ADC_ShiftReg[12:0], A_SDATA};
+                end else
+                    A_ADC_ShiftReg <= {A_ADC_ShiftReg[12:0], A_SDATA};
             end
             
             // WRITE TO FIFO STATE: To advance count 1 cycle
-            `STATE_FIFO_WRITE:
+            `STATE_FIFO_WRITE:  // STATE 3      
             begin
-                A_CS_n <= `CS_DISABLE;
                 A_ADC_SampleData <= {4'd0, A_ADC_ShiftReg[12:1]};
+                A_CS_n <= `CS_DISABLE;
                 A_State <= `STATE_SAMPLE_ACQUIRE_TIME;
             end
             
             // ACQUIRE NEXT SAMPLE STATE: To advance count 4 cycles - Total cycles per acquistion 1 + 14 + 1 + (4) = 20
-            `STATE_SAMPLE_ACQUIRE_TIME:
+            `STATE_SAMPLE_ACQUIRE_TIME: // STATE 4
             begin
                 if (Sys_A_MainCycleCounterReg == 5'd19)
                     A_State <= `STATE_WAIT;
@@ -386,7 +390,8 @@ begin
     if (Reset_n == `LOW)
     begin
         B_CS_n <= `CS_DISABLE;
-        B_ClockGate <= `CLK_DISABLE;
+        //B_ClockGate <= `CLK_DISABLE;
+        B_ClockGate <= `CLK_ENABLE;
         B_State <= `STATE_WAIT;
         B_Status <= `NO_ERROR;
     end else
@@ -394,7 +399,7 @@ begin
     begin
         case (B_State)
             // WAIT STATE: To advance count 1 cycle
-            `STATE_WAIT:
+            `STATE_WAIT:    // STATE 0
             begin
                 if ((SysFrameActiveReg) && (Sys_B_MainCycleCounterReg  == 5'd0) && (SysSampleCountInProgressReg != TOTAL_SAMPLES_PER_FRAME) && Sys_B_PhaseDelayInit) // Starts at Sys_A_MainCycleCounterReg 9 (10 clycles later - count from 0) and takes 20 cycles (Acquistion Rate 5Msps) - Acquistion begins 1/2 way into acquistion A complete 180 degrees out of phase with A start
                 begin
@@ -406,13 +411,13 @@ begin
                 end else
                 begin
                     B_CS_n <= `CS_DISABLE;
-                    B_ClockGate <= `CLK_DISABLE;
+                    //B_ClockGate <= `CLK_DISABLE;
                     B_Status <= `NO_ERROR;
                     B_SampleTrigger <= `FALSE;
                 end
             end
             
-            `STATE_BEGIN:
+            `STATE_BEGIN:   // STATE 1
             begin
                 B_SampleTrigger <= `FALSE;
                 B_State <= `STATE_CLK_DATA_IN;
@@ -420,28 +425,31 @@ begin
             end
             
             // CLOCK IN DATA STATE: To advance count 14 cycles
-            `STATE_CLK_DATA_IN:
+            `STATE_CLK_DATA_IN: // STATE 2
             begin
+                //if (Sys_B_MainCycleCounterReg == 5'd14)
+                //    B_ClockGate <= `CLK_DISABLE;
                 if (Sys_B_MainCycleCounterReg == 5'd14)
-                    B_ClockGate <= `CLK_DISABLE;
-                if (Sys_B_MainCycleCounterReg == 5'd15)
+                begin
+                    B_ADC_SampleData <= {4'd0, B_ADC_ShiftReg[12:1]};
+                    B_CS_n <= `CS_DISABLE;
                     B_State <= `STATE_FIFO_WRITE;
+                end
                 else
                     B_ADC_ShiftReg <= {B_ADC_ShiftReg[12:0], B_SDATA};
             end
             
             // WRITE TO FIFO STATE: To advance count 1 cycle
-            `STATE_FIFO_WRITE:
+            `STATE_FIFO_WRITE:  // STATE 3
             begin
-                B_CS_n <= `CS_DISABLE;
-                B_ADC_SampleData <= {4'd0, B_ADC_ShiftReg[12:1]};
+                //B_ADC_SampleData <= {4'd0, B_ADC_ShiftReg[12:1]};
                 B_State <= `STATE_SAMPLE_ACQUIRE_TIME;
             end
             
             // ACQUIRE NEXT SAMPLE STATE: To advance count 4 cycles - Total cycles per acquistion 1 + 14 + 1 + 4 = 20
-            `STATE_SAMPLE_ACQUIRE_TIME:
+            `STATE_SAMPLE_ACQUIRE_TIME: // STATE 4
             begin
-                if (Sys_B_MainCycleCounterReg == 5'd19)
+                if (Sys_B_MainCycleCounterReg == 5'd16)
                     B_State <= `STATE_WAIT;
             end
             
@@ -474,7 +482,7 @@ always @(posedge SysClock or negedge Reset_n) begin
         // on the exact same clock edge, keeping the data bus perfectly shared.
         if (Sys_A_MainCycleCounterReg == 5'd17) 
             FIFO_Data <= A_ADC_SampleData;
-        else if ((Sys_B_PhaseDelayInit == `TRUE) && (Sys_B_MainCycleCounterReg == 5'd17))
+        else if ((Sys_B_PhaseDelayInit == `TRUE) && (Sys_B_MainCycleCounterReg == 5'd14)) // WAS 17
             FIFO_Data <= B_ADC_SampleData;
 
         // =====================================================================
@@ -483,7 +491,7 @@ always @(posedge SysClock or negedge Reset_n) begin
         // This conditiona handles the FIFO Wr strobe. If either channel A or B
         // hits cycle 18, it creates a clean, 1-cycle wide pulse. Otherwise,
         // FIFO Wr strobe defaults to disabled 
-        if ((Sys_A_MainCycleCounterReg == 5'd18) || ((Sys_B_PhaseDelayInit == `TRUE) && (Sys_B_MainCycleCounterReg == 5'd18))) 
+        if ((Sys_A_MainCycleCounterReg == 5'd18) || ((Sys_B_PhaseDelayInit == `TRUE) && (Sys_B_MainCycleCounterReg == 5'd15))) 
         begin
             FIFO_WriteEnable  <= `FIFO_WR_ENABLE;
             ADC_SampleRate_TP <= !ADC_SampleRate_TP;
